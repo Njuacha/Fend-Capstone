@@ -2,4 +2,15 @@ import './styles/header.scss'
 import './styles/base.scss'
 import './styles/footer.scss'
 
-alert("I exist")
+import { handleSubmit } from './js/formHandler'
+
+
+//const url = 'http://api.geonames.org/searchJSON?q=london&maxRows=10&username=njuacha';
+
+//const dataReturned = fetch(url);
+
+//console.log("dataReturned"+dataReturned);
+
+export {
+  handleSubmit
+}
