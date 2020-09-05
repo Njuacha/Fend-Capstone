@@ -8,7 +8,7 @@ function isInputNull(input) {
 
 function isDateEarlierThanToday(date) {
   let today = new Date();
-  return date.getTime() < today.getTime();
+  return date.getDate() < today.getDate();
 }
 
 export {

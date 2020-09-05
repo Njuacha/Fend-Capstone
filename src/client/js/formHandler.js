@@ -33,8 +33,11 @@ const handleSubmit = (event) => {
 
 }
 
-const form = document.getElementById('form');
-form.addEventListener('submit', handleSubmit);
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('form');
+  form.addEventListener('submit', handleSubmit);
+});
+
 
 const numberOfDaysToTravelDate = (travelDate) => {
   let travelDay = travelDate.getDate();
@@ -137,5 +140,6 @@ const setCountDown = (travelDay) => {
 }
 
 export {
-  handleSubmit
+  handleSubmit,
+  numberOfDaysToTravelDate
 }
