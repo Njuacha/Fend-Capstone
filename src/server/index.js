@@ -32,43 +32,32 @@ app.post('/getResults', function (req, res) {
   const date = req.body.date;
   const daysToTravelDate = req.body.daysToTravelDate;
 
+  getPicturesOfPlace(place).then((pictures) => {
+    // if days less than 16 then we can get the weather forcast using available APIs
+    if (daysToTravelDate < 16) {
+      // first we get the long and lat of place to be used to the more precise weather forcast
+      getLongAndLatFromGeoNamesApi(place)
+      .then((longAndLat) => {
 
-  if (daysToTravelDate < 16) {
+        if (daysToTravelDate < 5) {
+           getHourlyWeatherForcast(longAndLat).then((weatherForcast) =>
+               res.send({weatherForcast: weatherForcast, pictures: pictures})
+           )
+        } else {
+           getDailyWeatherForcast(longAndLat).then((weatherForcast) =>
+               res.send({weatherForcast: weatherForcast, pictures: pictures})
+           )
+        }
+       }
+      )
 
-    getLongAndLatFromGeoNamesApi(place)
-    .then((longAndLat) => {
+    } else {
 
-      if (daysToTravelDate < 5) {
-         getHourlyWeatherForcast(longAndLat).then((weather) =>
+      res.send({pictures: pictures});
 
-             getPicturesOfPlace(place).then((pictures) => {
-               const weatherAndPictures = {weather: weather, pictures: pictures};
+    }
 
-             })
-
-         )
-      } else {
-         getDailyWeatherForcast(longAndLat).then((weather) =>
-
-             getPicturesOfPlace(place).then((pictures) => {
-               const weatherAndPictures = {weather: weather, pictures: pictures};
-
-             })
-
-         )
-      }
-
-      // Todo get the picture array and then combine with weather data array and send.
-
-     }
-    )
-
-  } else {
-
-    // Todo get the picture array and send.
-
-  }
-
+  })
 
 
 })
@@ -111,34 +100,37 @@ const getLongAndLatFromGeoNamesApi = async (place) => {
 const getHourlyWeatherForcast = async (longAndLat) => {
   const url = 'http://api.weatherbit.io/v2.0/forecast/hourly?lat='+longAndLat.latitude+'&lon='+longAndLat.longitude+'&key='+weatherbitApiKey;
   const data = await getDataFromUrl(url, {});
-  const weather = [];
+  const weatherForcast = [];
 
   for (const weatherData of data.data) {
     const temp = weatherData.temp;
+    const dateTime = weatherData.datetime;
     const weatherDescription = weatherData.weather.description;
-    const tempAndWeatherDescription = {temp: temp, weatherDescription: weatherDescription};
-    weather.push(tempAndWeatherDescription);
+    const tempDateTimeWeatherDescription = {temp: temp, dateTime: dateTime, weatherDescription: weatherDescription};
+    weatherForcast.push(tempDateTimeWeatherDescription);
   }
 
-  return {weather: weather};
+  return weatherForcast;
 }
 
 const getDailyWeatherForcast = async (longAndLat) => {
   const url = 'http://api.weatherbit.io/v2.0/forecast/daily?lat='+longAndLat.latitude+'&lon='+longAndLat.longitude+'&key='+weatherbitApiKey;
   const data = await getDataFromUrl(url, {});
-  const weather = [];
+  const weatherForcast = [];
 
   for (const weatherData of data.data) {
     const temp = weatherData.temp;
+    const dateTime = weatherData.datetime;
     const weatherDescription = weatherData.weather.description;
-    const tempAndWeatherDescription = {temp: temp, weatherDescription: weatherDescription};
-    weather.push(tempAndWeatherDescription);
+    const tempDateTimeWeatherDescription = {temp: temp, dateTime: dateTime, weatherDescription: weatherDescription};
+    weatherForcast.push(tempDateTimeWeatherDescription);
   }
 
-  return {weather: weather};
+  return weatherForcast;
 }
 
 const getPicturesOfPlace = async (place) => {
+
    const url = 'https://pixabay.com/api/?key=18082897-3502e121f4a3ed107776e8105&q=' + place + '&image_type=photo';
    const data = await getDataFromUrl(url, {});
    const pictures = [];
@@ -148,5 +140,5 @@ const getPicturesOfPlace = async (place) => {
      pictures.push(largeImageURL);
    }
 
-   return {pictures: pictures};
+   return pictures;
 }

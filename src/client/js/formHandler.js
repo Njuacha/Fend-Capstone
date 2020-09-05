@@ -1,11 +1,12 @@
+let date;
+let timerId;
 
-
-function handleSubmit(event) {
+const handleSubmit = (event) => {
   event.preventDefault();
 
   const place = document.getElementById('destination').value;
+  date = document.getElementById('date').valueAsDate;
 
-  let date = document.getElementById('date').valueAsDate;
 
   // check if place input valid
   if(Client.isInputEmpty(place)) {
@@ -32,6 +33,9 @@ function handleSubmit(event) {
 
 }
 
+const form = document.getElementById('form');
+form.addEventListener('submit', handleSubmit);
+
 const numberOfDaysToTravelDate = (travelDate) => {
   let travelDay = travelDate.getDate();
   let today = (new Date()).getDate();
@@ -57,44 +61,60 @@ const postData = async (url = '', data = {}) => {
 }
 
 const updateUI = (newData) => {
-   // let travelDate = new Date(newData.date);
-   // let temperatureTableFragment = document.createDocumentFragment();
-   //
-   // for(let i=0; i < 5; i++) {
-   //   const temp = data.data[i].temp;
-   //   const weatherDescription = data.data[i].weather.description;
-   //   let weatherRow = document.createElement('tr');
-   //   weatherRow.innerHTML = `<td>${temp}</td><td>${weatherDescription}</td>`;
-   //   temperatureTableFragment.appendChild(weatherRow);
-   // }
 
-   // const length = data.hits.length;
-   // let picturesFragment = document.createDocumentFragment();
-   // if(length >= 4) {
-   //
-   //   for (let i=0; i<4; i++){
-   //     // get image src url
-   //     const largeImageURL = data.hits[i].largeImageURL;
-   //     let pictureWrapper = document.createElement('div');
-   //     pictureWrapper.innerHTML = `<div class="picture-wrapper"><img src="${largeImageURL}"></div>`;
-   //     picturesFragment.appendChild(pictureWrapper);
-   //   }
-   //
-   //   document.querySelector('.pictures-container').appendChild(picturesFragment);
-   //
-   // }
+   const pictures = newData.pictures;
+   const weatherForcast = newData.weatherForcast;
 
-
-   //
-   // document.querySelector('#temperature-forcast').appendChild(temperatureTableFragment);
-   // setCountDown(newData.date);
+   displayPictures(pictures);
+   displayWeatherForcast(weatherForcast);
+   setCountDown(date);
 }
 
+const displayPictures = (pictures) => {
+  document.querySelector('.pictures-container').textContent = '';
+  let picturesFragment = document.createDocumentFragment();
 
-function setCountDown(travelDay) {
+  for (const pictureUrl of pictures){
+
+    let pictureWrapper = document.createElement('div');
+    pictureWrapper.innerHTML = `<div class="picture-wrapper"><img src="${pictureUrl}"></div>`;
+    picturesFragment.appendChild(pictureWrapper);
+  }
+
+  document.querySelector('.pictures-container').appendChild(picturesFragment);
+}
+
+const displayWeatherForcast = (weatherForcast) => {
+  document.querySelector('#temperature-forcast').textContent = '';
+
+  let temperatureTableFragment = document.createDocumentFragment();
+
+  let weatherHeading = document.createElement('tr');
+  weatherHeading.innerHTML = `<th>Temperature</th>
+                   <th>DateTime</th>
+                   <th>Weather Description</th>`;
+
+  temperatureTableFragment.appendChild(weatherHeading);
+
+  for(const weather of weatherForcast) {
+    const temp = weather.temp;
+    const dateTime = weather.dateTime;
+    const weatherDescription = weather.weatherDescription;
+    let weatherRow = document.createElement('tr');
+    weatherRow.innerHTML = `<td>${temp}</td><td>${dateTime}</td><td>${weatherDescription}</td>`;
+    temperatureTableFragment.appendChild(weatherRow);
+  }
+
+  document.querySelector('#temperature-forcast').appendChild(temperatureTableFragment);
+}
+
+const setCountDown = (travelDay) => {
+  if(timerId) {
+    clearInterval(timerId);
+  }
   var deadline = travelDay.getTime();
 
-  var x = setInterval(function() {
+  timerId = setInterval(function() {
 
   var now = new Date().getTime();
   var t = deadline - now;
@@ -107,7 +127,7 @@ function setCountDown(travelDay) {
   document.getElementById("minute").innerHTML = minutes;
   document.getElementById("second").innerHTML =seconds;
   if (t < 0) {
-          clearInterval(x);
+          clearInterval(timerId);
           document.getElementById("demo").innerHTML = "TIME UP";
           document.getElementById("day").innerHTML ='0';
           document.getElementById("hour").innerHTML ='0';
