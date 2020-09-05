@@ -1,29 +1,95 @@
+
+
 function handleSubmit(event) {
   event.preventDefault();
 
   const place = document.getElementById('destination').value;
-  console.log('destination: '+place);
-  const url = 'http://api.geonames.org/searchJSON?q='+place+'&maxRows=1&username=Njuacha';
-  const date = document.getElementById('date').valueAsDate;
-  setCountDown(date);
-  
-  fetch(url)
-  .then((resp) => resp.json())
-  .then(function(data) {
-    const geonames = data.geonames[0];
-    const countryName = geonames.countryName;
-    const longitude = geonames.lng;
-    const latitude = geonames.lat;
 
-    console.log('countryName: '+countryName);
-    console.log('longitude: '+longitude);
-    console.log('latitude: '+latitude);
+  let date = document.getElementById('date').valueAsDate;
 
-  })
-  .catch(function(error) {
-    console.log('Error'+error);
-  })
+  // check if place input valid
+  if(Client.isInputEmpty(place)) {
+    alert('please enter a destination before submitting');
+    return;
+  }
+  // check if date input is null
+  if(Client.isInputNull(date)) {
+    alert('please enter a date before submitting');
+    return;
+  }
+
+  if(Client.isDateEarlierThanToday(date)) {
+    alert('The date entered has already passed')
+    return;
+  }
+
+  let daysToTravelDate = numberOfDaysToTravelDate(date);
+
+  postData('http://localhost:8081/getResults', {place: place, date: date, daysToTravelDate: daysToTravelDate })
+    .then((newData)  =>
+      updateUI(newData)
+  )
+
 }
+
+const numberOfDaysToTravelDate = (travelDate) => {
+  let travelDay = travelDate.getDate();
+  let today = (new Date()).getDate();
+  return  travelDay - today ;
+}
+
+const postData = async (url = '', data = {}) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  try {
+    const newData = await response.json();
+    return newData;
+  }catch(error) {
+    console.log('error', error);
+  }
+}
+
+const updateUI = (newData) => {
+   // let travelDate = new Date(newData.date);
+   // let temperatureTableFragment = document.createDocumentFragment();
+   //
+   // for(let i=0; i < 5; i++) {
+   //   const temp = data.data[i].temp;
+   //   const weatherDescription = data.data[i].weather.description;
+   //   let weatherRow = document.createElement('tr');
+   //   weatherRow.innerHTML = `<td>${temp}</td><td>${weatherDescription}</td>`;
+   //   temperatureTableFragment.appendChild(weatherRow);
+   // }
+
+   // const length = data.hits.length;
+   // let picturesFragment = document.createDocumentFragment();
+   // if(length >= 4) {
+   //
+   //   for (let i=0; i<4; i++){
+   //     // get image src url
+   //     const largeImageURL = data.hits[i].largeImageURL;
+   //     let pictureWrapper = document.createElement('div');
+   //     pictureWrapper.innerHTML = `<div class="picture-wrapper"><img src="${largeImageURL}"></div>`;
+   //     picturesFragment.appendChild(pictureWrapper);
+   //   }
+   //
+   //   document.querySelector('.pictures-container').appendChild(picturesFragment);
+   //
+   // }
+
+
+   //
+   // document.querySelector('#temperature-forcast').appendChild(temperatureTableFragment);
+   // setCountDown(newData.date);
+}
+
 
 function setCountDown(travelDay) {
   var deadline = travelDay.getTime();

@@ -6,7 +6,7 @@
    text-align: center;
    font-size: 30px;
 }
-#clockdiv > div{ 
+#clockdiv > div{
    padding: 10px;
    border-radius: 3px;
    background: #00BF96;
@@ -21,4 +21,48 @@
 smalltext{
    padding-top: 5px;
    font-size: 16px;
+}
+
+.pictures-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  .picture-wrapper {
+    width: 200px;
+    height: 200px;
+
+    img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+  }
+}
+
+section {
+  form {
+    border: 1px solid #00BF96;
+    max-width: 500px;
+    margin: auto;
+    padding: 20px;
+
+    div {
+      margin-top: 20px;
+    }
+  }
+
+  .results-title {
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .results-container {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #00BF96;
+    box-sizing: border-box;
+    width: 90vw;
+    margin: auto;
+    padding: 20px;
+  }
 }

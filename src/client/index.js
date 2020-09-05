@@ -3,6 +3,8 @@ import './styles/base.scss'
 import './styles/footer.scss'
 
 import { handleSubmit } from './js/formHandler'
+import { isInputEmpty, isInputNull, isDateEarlierThanToday } from './js/inputValidate'
+
 
 
 //const url = 'http://api.geonames.org/searchJSON?q=london&maxRows=10&username=njuacha';
@@ -12,5 +14,8 @@ import { handleSubmit } from './js/formHandler'
 //console.log("dataReturned"+dataReturned);
 
 export {
-  handleSubmit
+  handleSubmit,
+  isInputEmpty,
+  isInputNull,
+  isDateEarlierThanToday
 }
