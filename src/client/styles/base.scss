@@ -1,3 +1,5 @@
+$base-color: #00BF96;
+
 #clockdiv {
    width: 100%;
    margin: auto;
@@ -11,7 +13,7 @@
    div {
       padding: 10px;
       border-radius: 3px;
-      background: #00BF96;
+      background: $base-color;
       display: inline-block;
 
       span{
@@ -32,6 +34,7 @@
 .pictures-container {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  grid-auto-rows: min-content;
 
   .picture-wrapper {
     width: 200px;
@@ -46,7 +49,7 @@
 
 section {
   form {
-    border: 1px solid #00BF96;
+    border: 1px solid $base-color;
     max-width: 500px;
     margin: auto;
     padding: 20px;
@@ -69,10 +72,16 @@ section {
   .results-container {
     display: flex;
     justify-content: space-between;
-    border: 1px solid #00BF96;
+    border: 1px solid $base-color;
     box-sizing: border-box;
     width: 90vw;
     margin: auto;
     padding: 20px;
   }
+}
+
+#temperature-forcast {
+  border: 1px solid gray;
+  border-collapse: separate;
+  border-spacing: 15px;
 }

@@ -95,6 +95,7 @@ const getLongAndLatFromGeoNamesApi = async (place) => {
 const getHourlyWeatherForcast = async (longLatCountry) => {
   const url = 'http://api.weatherbit.io/v2.0/forecast/hourly?lat='+longLatCountry.latitude+'&lon='+longLatCountry.longitude+'&key='+weatherbitApiKey;
   const data = await getDataFromUrl(url, {});
+  
   const weatherForcast = [];
 
   for (const weatherData of data.data) {
@@ -126,7 +127,7 @@ const getDailyWeatherForcast = async (longLatCountry) => {
 
 const getPicturesOfPlace = async (place, countryName) => {
 
-   const url = 'https://pixabay.com/api/?key=18082897-3502e121f4a3ed107776e8105&q=' + place + '&image_type=photo';
+   const url = 'https://pixabay.com/api/?key='+pixabayApiKey+'&q=' + place + '&image_type=photo';
    const data = await getDataFromUrl(url, {});
    const pictures = [];
 
@@ -137,8 +138,7 @@ const getPicturesOfPlace = async (place, countryName) => {
 
    // if the there are no pictures for the place then try a wider search by searching for pictures from the country
    if (pictures.length == 0) {
-     console.log('I reach this point of execution');
-     const url2 = 'https://pixabay.com/api/?key=18082897-3502e121f4a3ed107776e8105&q=' + countryName + '&image_type=photo';
+     const url2 = 'https://pixabay.com/api/?key='+pixabayApiKey+'&q=' + countryName + '&image_type=photo';
      const data2 = await getDataFromUrl(url2, {});
 
      for (const hit of data2.hits) {

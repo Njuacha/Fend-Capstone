@@ -1,5 +1,6 @@
 let date;
 let timerId;
+let daysToTravelDate;
 
 const handleSubmit = (event) => {
   event.preventDefault();
@@ -24,7 +25,7 @@ const handleSubmit = (event) => {
     return;
   }
 
-  let daysToTravelDate = numberOfDaysToTravelDate(date);
+  daysToTravelDate = numberOfDaysToTravelDate(date);
 
   postData('http://localhost:8081/getResults', {place: place, date: date, daysToTravelDate: daysToTravelDate })
     .then((newData)  =>
@@ -66,10 +67,18 @@ const postData = async (url = '', data = {}) => {
 const updateUI = (newData) => {
 
    const pictures = newData.pictures;
-   const weatherForcast = newData.weatherForcast;
-
    displayPictures(pictures);
-   displayWeatherForcast(weatherForcast);
+
+   if (daysToTravelDate < 16) {
+
+      const weatherForcast = newData.weatherForcast;
+      displayWeatherForcast(weatherForcast);
+
+   } else { // our server end point does not generate weather forcast for more than 15 days away from today
+      document.querySelector('#temperature-forcast').textContent = "Sorry we can not provide weather forcast when your travel date is more than 15 days away";
+   }
+
+
    setCountDown(date);
 }
 
@@ -80,7 +89,8 @@ const displayPictures = (pictures) => {
   for (const pictureUrl of pictures){
 
     let pictureWrapper = document.createElement('div');
-    pictureWrapper.innerHTML = `<div class="picture-wrapper"><img src="${pictureUrl}"></div>`;
+    pictureWrapper.className = "picture-wrapper";
+    pictureWrapper.innerHTML = `<img src="${pictureUrl}">`;
     picturesFragment.appendChild(pictureWrapper);
   }
 
