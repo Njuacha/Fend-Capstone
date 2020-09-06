@@ -32,33 +32,26 @@ app.post('/getResults', function (req, res) {
   const date = req.body.date;
   const daysToTravelDate = req.body.daysToTravelDate;
 
-  getPicturesOfPlace(place).then((pictures) => {
-    // if days less than 16 then we can get the weather forcast using available APIs
-    if (daysToTravelDate < 16) {
-      // first we get the long and lat of place to be used to the more precise weather forcast
-      getLongAndLatFromGeoNamesApi(place)
-      .then((longAndLat) => {
+  // get lat, long and country
+  getLongAndLatFromGeoNamesApi(place)
+  .then((longLatCountry) =>
+    getPicturesOfPlace(place, longLatCountry.country)
+    .then((pictures) => {
 
         if (daysToTravelDate < 5) {
-           getHourlyWeatherForcast(longAndLat).then((weatherForcast) =>
+           getHourlyWeatherForcast(longLatCountry).then((weatherForcast) =>
+               res.send({weatherForcast: weatherForcast, pictures: pictures})
+           )
+        } else if (daysToTravelDate >= 5 && daysToTravelDate < 16) {
+           getDailyWeatherForcast(longLatCountry).then((weatherForcast) =>
                res.send({weatherForcast: weatherForcast, pictures: pictures})
            )
         } else {
-           getDailyWeatherForcast(longAndLat).then((weatherForcast) =>
-               res.send({weatherForcast: weatherForcast, pictures: pictures})
-           )
+          res.send({pictures: pictures});
         }
-       }
-      )
 
-    } else {
-
-      res.send({pictures: pictures});
-
-    }
-
-  })
-
+    })
+  )
 
 })
 
@@ -93,12 +86,14 @@ const getLongAndLatFromGeoNamesApi = async (place) => {
   const geonames = data.geonames[0];
   const longitude = geonames.lng;
   const latitude = geonames.lat;
-  const longAndLat = {longitude: longitude, latitude: latitude};
-  return longAndLat;
+  const country = geonames.countryName;
+  console.log(country);
+  const longLatCountry = {longitude: longitude, latitude: latitude, country: country};
+  return longLatCountry;
 }
 
-const getHourlyWeatherForcast = async (longAndLat) => {
-  const url = 'http://api.weatherbit.io/v2.0/forecast/hourly?lat='+longAndLat.latitude+'&lon='+longAndLat.longitude+'&key='+weatherbitApiKey;
+const getHourlyWeatherForcast = async (longLatCountry) => {
+  const url = 'http://api.weatherbit.io/v2.0/forecast/hourly?lat='+longLatCountry.latitude+'&lon='+longLatCountry.longitude+'&key='+weatherbitApiKey;
   const data = await getDataFromUrl(url, {});
   const weatherForcast = [];
 
@@ -113,8 +108,8 @@ const getHourlyWeatherForcast = async (longAndLat) => {
   return weatherForcast;
 }
 
-const getDailyWeatherForcast = async (longAndLat) => {
-  const url = 'http://api.weatherbit.io/v2.0/forecast/daily?lat='+longAndLat.latitude+'&lon='+longAndLat.longitude+'&key='+weatherbitApiKey;
+const getDailyWeatherForcast = async (longLatCountry) => {
+  const url = 'http://api.weatherbit.io/v2.0/forecast/daily?lat='+longLatCountry.latitude+'&lon='+longLatCountry.longitude+'&key='+weatherbitApiKey;
   const data = await getDataFromUrl(url, {});
   const weatherForcast = [];
 
@@ -129,7 +124,7 @@ const getDailyWeatherForcast = async (longAndLat) => {
   return weatherForcast;
 }
 
-const getPicturesOfPlace = async (place) => {
+const getPicturesOfPlace = async (place, countryName) => {
 
    const url = 'https://pixabay.com/api/?key=18082897-3502e121f4a3ed107776e8105&q=' + place + '&image_type=photo';
    const data = await getDataFromUrl(url, {});
@@ -138,6 +133,18 @@ const getPicturesOfPlace = async (place) => {
    for (const hit of data.hits) {
      const largeImageURL = hit.largeImageURL;
      pictures.push(largeImageURL);
+   }
+
+   // if the there are no pictures for the place then try a wider search by searching for pictures from the country
+   if (pictures.length == 0) {
+     console.log('I reach this point of execution');
+     const url2 = 'https://pixabay.com/api/?key=18082897-3502e121f4a3ed107776e8105&q=' + countryName + '&image_type=photo';
+     const data2 = await getDataFromUrl(url2, {});
+
+     for (const hit of data2.hits) {
+       const largeImageURL = hit.largeImageURL;
+       pictures.push(largeImageURL);
+     }
    }
 
    return pictures;
