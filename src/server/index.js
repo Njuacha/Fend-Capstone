@@ -142,3 +142,7 @@ const getPicturesOfPlace = async (place) => {
 
    return pictures;
 }
+
+module.exports = {
+   getLongAndLatFromGeoNamesApi
+}
